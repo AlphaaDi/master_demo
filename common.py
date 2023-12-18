@@ -357,10 +357,14 @@ def extract_line_endpoints(binary_mask):
     return line_masks
 
 
-def read_worker_urls(json_file):
-    with open(json_file, 'r') as file:
-        data = json.load(file)
+def read_urls_from_file(file_path):
+    urls = []
+    try:
+        with open(file_path, 'r') as file:
+            urls = [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-    workers = data.get('workers', [])
-    urls = [worker['url'] for worker in workers]
     return urls

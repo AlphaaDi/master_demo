@@ -9,9 +9,10 @@ from common import *
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Video Processing Service")
+    parser.add_argument("--public_ip")
     parser.add_argument("--database", default='files/task_database.db', help="Path to the database file")
-    parser.add_argument("--urls_path", default='urls_path.json')
-    parser.add_argument("--result_endpoint", default='http://10.9.236.73:6000/process_video_result')
+    parser.add_argument("--urls_path", default='urls_path.txt')
+    parser.add_argument("--task_manager_port", default='6000')
     parser.add_argument("--process_api_method", default='process_video', help="API method for processing video")
     parser.add_argument("--check_api_method", default='get_worker_status', help="API method for checking worker status")
     return parser.parse_args()
@@ -47,6 +48,7 @@ def send_video_processing_request(task, server_url, response_url):
 if __name__ == "__main__":
     args = parse_arguments()
     urls_file = args.urls_path
+    result_endpoint = f'http://{args.public_ip}:{args.task_manager_port}/process_video_result'
     try:
         task_db = TaskDatabase(args.database)
         while True:
@@ -54,13 +56,9 @@ if __name__ == "__main__":
             task = task_db.retrieve_oldest_wait_task()
             if not task:
                 continue
-            urls = read_worker_urls(args.urls_path)
+            urls = read_urls_from_file(args.urls_path)
             for url in urls:
-                try:
-                    response = requests.get(os.path.join(url, args.check_api_method))
-                except BaseException as e:
-                    print(e)
-                    continue
+                response = requests.get(os.path.join(url, args.check_api_method))
                 status = json.loads(response.text)['status']
                 if status == 'ready':
                     print(f"Send task {task['task_id']} to {url} for {args.process_api_method}")
