@@ -56,7 +56,11 @@ if __name__ == "__main__":
                 continue
             urls = read_worker_urls(args.urls_path)
             for url in urls:
-                response = requests.get(os.path.join(url, args.check_api_method))
+                try:
+                    response = requests.get(os.path.join(url, args.check_api_method))
+                except BaseException as e:
+                    print(e)
+                    continue
                 status = json.loads(response.text)['status']
                 if status == 'ready':
                     print(f"Send task {task['task_id']} to {url} for {args.process_api_method}")
