@@ -55,10 +55,13 @@ if __name__ == "__main__":
             time.sleep(1)
             task = task_db.retrieve_oldest_wait_task()
             if not task:
+                print('no task')
                 continue
+            print('task')
             ip_adresses = read_servers_from_file(args.adresses_path)
             for ip_adress in ip_adresses:
                 url = f'http://{ip_adress}:{args.worker_port}'
+                print('url ', url)
                 response = requests.get(os.path.join(url, args.check_api_method))
                 status = json.loads(response.text)['status']
                 if status == 'ready':
