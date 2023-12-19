@@ -69,7 +69,7 @@ if __name__ == "__main__":
                     task_db.update_task_status(task['task_id'], status='processing')
                     response = send_video_processing_request(
                         task, os.path.join(url, args.process_api_method),
-                        args.result_endpoint
+                        result_endpoint
                     )
     except KeyboardInterrupt:
         print("Shutting down...")
