@@ -357,14 +357,14 @@ def extract_line_endpoints(binary_mask):
     return line_masks
 
 
-def read_urls_from_file(file_path):
+def read_servers_from_file(file_path):
     urls = []
     try:
         with open(file_path, 'r') as file:
-            urls = [line.strip() for line in file if line.strip()]
+            ip_adresses = [line.strip() for line in file if line.strip()]
     except FileNotFoundError:
         print(f"File not found: {file_path}")
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    return urls
+    return ip_adresses

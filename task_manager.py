@@ -11,7 +11,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Video Processing Service")
     parser.add_argument("--public_ip")
     parser.add_argument("--database", default='files/task_database.db', help="Path to the database file")
-    parser.add_argument("--urls_path", default='urls_path.txt')
+    parser.add_argument("--adresses_path", default='urls_path.txt')
+    parser.add_argument("--worker_port", default='5000')
     parser.add_argument("--task_manager_port", default='6000')
     parser.add_argument("--process_api_method", default='process_video', help="API method for processing video")
     parser.add_argument("--check_api_method", default='get_worker_status', help="API method for checking worker status")
@@ -47,7 +48,6 @@ def send_video_processing_request(task, server_url, response_url):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    urls_file = args.urls_path
     result_endpoint = f'http://{args.public_ip}:{args.task_manager_port}/process_video_result'
     try:
         task_db = TaskDatabase(args.database)
@@ -56,8 +56,9 @@ if __name__ == "__main__":
             task = task_db.retrieve_oldest_wait_task()
             if not task:
                 continue
-            urls = read_urls_from_file(args.urls_path)
-            for url in urls:
+            ip_adresses = read_servers_from_file(args.adresses_path)
+            for ip_adress in ip_adresses:
+                url = f'http://{ip_adress}:{args.worker_port}'
                 response = requests.get(os.path.join(url, args.check_api_method))
                 status = json.loads(response.text)['status']
                 if status == 'ready':
