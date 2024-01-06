@@ -176,7 +176,7 @@ def commit_task(video_path, prompts, config_text_box, state):
 
 # Function to load and display video
 def load_video(video_path):
-    return gr.Video(file_path=video_path)
+    return video_path
 
 
 def erase_task(task_id):
@@ -256,7 +256,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                         ts = gr.Textbox(label='timestamp', lines=5,)
                         stat = gr.Textbox(label='status', lines=5,)
                         prompts_box = gr.Textbox(label='prompts', lines=5, min_width=500)
-                        video_place = gr.Video(show_label=None)
+                        video_place = gr.Video()
                         annotate_img_2 = gr.AnnotatedImage(
                             show_label=None,
                             color_map=colormap,height=200,width=200
