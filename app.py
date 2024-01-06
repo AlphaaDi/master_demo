@@ -194,7 +194,7 @@ def parse_task_to_gradio(task):
     prompts = [f"{label}:{object_info['prompt']}" for label, object_info in objects_info.items()]
     prompts_str = '\n'.join(prompts)
     
-    return str(task["task_id"]), task["timestamp"], task["status"], prompts_str, (first_img, bboxes)
+    return str(task["task_id"]), task["timestamp"], task["status"], prompts_str, (first_img, bboxes), task['file_path']
 
 
 def get_task_parser_n(idx):
@@ -203,7 +203,7 @@ def get_task_parser_n(idx):
         if idx < len(tasks):
             return parse_task_to_gradio(tasks[idx])
         else:
-            return tuple([None]*5)
+            return tuple([None]*6)
     return parse_task_to_gradio_n
 
 
@@ -253,6 +253,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                     blocks_row = []
                     with gr.Row(variant='panel') as row:
                         task_id_box = gr.Textbox(label='task_id', lines=5)
+                        result_video_path = gr.Textbox(label='result_video_path', lines=1, visible=False)
                         ts = gr.Textbox(label='timestamp', lines=5,)
                         stat = gr.Textbox(label='status', lines=5,)
                         prompts_box = gr.Textbox(label='prompts', lines=5, min_width=500)
@@ -265,7 +266,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                             btn = gr.Button(f"Load Video")
                             delete_btn = gr.Button("Erase task")
 
-                        blocks_row = [task_id_box, ts, stat, prompts_box, annotate_img_2]
+                        blocks_row = [task_id_box, ts, stat, prompts_box, annotate_img_2, result_video_path]
                         
                         reload_button.click(
                             get_visability(idx),
@@ -277,7 +278,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                             outputs=blocks_row
                         )
                         
-                        btn.click(fn=load_video, inputs=task_id_box, outputs=video_place)
+                        btn.click(fn=load_video, inputs=result_video_path, outputs=video_place)
                         delete_btn.click(fn=erase_task, inputs=task_id_box)
                 
     
