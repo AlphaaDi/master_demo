@@ -1,0 +1,100 @@
+{
+  "categories": [
+    {
+      "name": "Hero styles",
+      "templates": [
+        {
+          "id": "1",
+          "title": "Multiverse",
+          "description": "Step into the multiverse.",
+          "effect_ids": [
+            "1",
+            "1"
+          ]
+        },
+        {
+          "id": "2",
+          "title": "Knight",
+          "description": "Embrace the chivalry.",
+          "effect_ids": [
+            "2",
+            "1"
+          ]
+        },
+        {
+          "id": "3",
+          "title": "Comic",
+          "description": "Become a comic hero.",
+          "effect_ids": [
+            "3",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Futuristic styles",
+      "templates": [
+        {
+          "id": "4",
+          "title": "Chrome",
+          "description": "Shine in metallic style.",
+          "effect_ids": [
+            "4",
+            "1"
+          ]
+        },
+        {
+          "id": "5",
+          "title": "Robot",
+          "description": "Transform into a robot.",
+          "effect_ids": [
+            "5",
+            "1"
+          ]
+        },
+        {
+          "id": "6",
+          "title": "Space",
+          "description": "Explore the cosmos.",
+          "effect_ids": [
+            "6",
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fantasy styles",
+      "templates": [
+        {
+          "id": "7",
+          "title": "Fantasy",
+          "description": "Dive into fantasy worlds.",
+          "effect_ids": [
+            "7",
+            "1"
+          ]
+        },
+        {
+          "id": "8",
+          "title": "Charming",
+          "description": "Unleash your charm.",
+          "effect_ids": [
+            "8",
+            "1"
+          ]
+        },
+        {
+          "id": "9",
+          "title": "Wizard",
+          "description": "Cast your spell.",
+          "effect_ids": [
+            "9",
+            "1"
+          ]
+        }
+      ]
+    }
+  ]
+}

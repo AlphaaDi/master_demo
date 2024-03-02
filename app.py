@@ -1,5 +1,6 @@
 import gradio as gr
 import os
+import requests
 from time import time
 import numpy as np
 import uuid
@@ -20,18 +21,23 @@ initial_state = {
 
 
 parser = argparse.ArgumentParser(description="Video Processing Task Creator Gradio")
+parser.add_argument("--public_ip")
 parser.add_argument("--csv_file_path", default='extended_propmts.csv')
 parser.add_argument("--blob_storage_path", default='files/blob_storage')
 parser.add_argument("--db_path", default='files/task_database.db')
 parser.add_argument("--port", default=7000, type=int)
 parser.add_argument("--animate_config", default='animatediff_default_config.json')
+parser.add_argument("--task_manager_port", default='6000')
 args = parser.parse_args()
 
 styles_df = pd.read_csv(args.csv_file_path)
 
 blob_storage = Path(args.blob_storage_path)
+blob_storage.mkdir(exist_ok=True)
 
 task_db = TaskDatabase(args.db_path)
+
+TASK_MANAGER_URL = f'http://{args.public_ip}:{args.task_manager_port}/upload_task'
 
 
 def gradio_get_frame(video_path):
@@ -146,19 +152,7 @@ def update_textbox_content(current_text, state):
 
 
 def commit_task(video_path, prompts, config_text_box, state):
-    task_id = str(uuid.uuid4())
-    
-    task_folder = blob_storage / task_id
-    task_folder.mkdir(exist_ok=True)
-    storage_video_path = str(task_folder / f'video.mp4')
-    storage_json_path = str(task_folder / f'config.json')
-    shutil.copyfile(video_path, storage_video_path)
     objects_prompts = parse_text_prompts(prompts)
-    
-    with open(storage_json_path, 'w') as file:
-        json.dump(
-            json.loads(config_text_box), file, indent=4
-        )
     
     objects_info = {}
     for bbox, object_label in state['completed_sections']:
@@ -166,12 +160,22 @@ def commit_task(video_path, prompts, config_text_box, state):
             'prompt': objects_prompts[object_label],
             'bbox': bbox
         }
-    
-    task_id = task_db.insert_task(
-        objects_info, original_video_path=storage_video_path,
-        task_id=task_id, config_path=storage_json_path
-    )
-    return f'Push task to process and task id is {task_id}'
+
+    files = {'video': open(video_path, 'rb')}
+
+    data = {
+        'objects_info' : objects_info,
+        'config_text_box': config_text_box,
+        'task_type': 'video',
+    }
+
+    # Send the task to the task manager
+    response = requests.post(TASK_MANAGER_URL, data=data, files=files)
+    if response.status_code == 200:
+        return f'Task sent to the task manager successfully'
+    else:
+        return f'Failed to send task to the task manager'
+
 
 
 # Function to load and display video

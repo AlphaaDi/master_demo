@@ -1,0 +1,47 @@
+{
+  "1": {
+    "config_file_path": "path/to/multiverse/config",
+    "name": "Multiverse Effect",
+    "description": "Multiverse swirling energy."
+  },
+  "2": {
+    "config_file_path": "path/to/knight/config",
+    "name": "Knight Armor",
+    "description": "Shiny medieval armor."
+  },
+  "3": {
+    "config_file_path": "path/to/comic/config",
+    "name": "Comic Blast",
+    "description": "Comic book style blasts and bubbles."
+  },
+  "4": {
+    "config_file_path": "path/to/chrome/config",
+    "name": "Chrome Shine",
+    "description": "Futuristic metallic finish."
+  },
+  "5": {
+    "config_file_path": "path/to/robot/config",
+    "name": "Robot Transformation",
+    "description": "Mechanical gears and parts."
+  },
+  "6": {
+    "config_file_path": "path/to/space/config",
+    "name": "Space Odyssey",
+    "description": "Stellar and cosmic effects."
+  },
+  "7": {
+    "config_file_path": "path/to/fantasy/config",
+    "name": "Fantasy Aura",
+    "description": "Magical and mystical aura."
+  },
+  "8": {
+    "config_file_path": "path/to/charming/config",
+    "name": "Charming Glow",
+    "description": "Enchanting and alluring light."
+  },
+  "9": {
+    "config_file_path": "path/to/wizard/config",
+    "name": "Wizard Magic",
+    "description": "Spells and enchantments visualized."
+  }
+}

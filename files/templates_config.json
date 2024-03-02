@@ -1,0 +1,172 @@
+{
+  "categories": [
+    {
+      "name": "Hero styles",
+      "templates": [
+        {
+          "id": "1",
+          "title": "Multiverse",
+          "description": "Step into the multiverse.",
+          "effects": [
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "title": "Knight",
+          "description": "Embrace the chivalry.",
+          "effects": [
+            {
+              "name": "Knight Armor",
+              "description": "Shiny medieval armor.",
+              "effect_id": "2"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "title": "Comic",
+          "description": "Become a comic hero.",
+          "effects": [
+            {
+              "name": "Comic Blast",
+              "description": "Comic book style blasts and bubbles.",
+              "effect_id": "3"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Futuristic styles",
+      "templates": [
+        {
+          "id": "4",
+          "title": "Chrome",
+          "description": "Shine in metallic style.",
+          "effects": [
+            {
+              "name": "Chrome Shine",
+              "description": "Futuristic metallic finish.",
+              "effect_id": "4"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "5",
+          "title": "Robot",
+          "description": "Transform into a robot.",
+          "effects": [
+            {
+              "name": "Robot Transformation",
+              "description": "Mechanical gears and parts.",
+              "effect_id": "5"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "6",
+          "title": "Space",
+          "description": "Explore the cosmos.",
+          "effects": [
+            {
+              "name": "Space Odyssey",
+              "description": "Stellar and cosmic effects.",
+              "effect_id": "6"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fantasy styles",
+      "templates": [
+        {
+          "id": "7",
+          "title": "Fantasy",
+          "description": "Dive into fantasy worlds.",
+          "effects": [
+            {
+              "name": "Fantasy Aura",
+              "description": "Magical and mystical aura.",
+              "effect_id": "7"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "8",
+          "title": "Charming",
+          "description": "Unleash your charm.",
+          "effects": [
+            {
+              "name": "Charming Glow",
+              "description": "Enchanting and alluring light.",
+              "effect_id": "8"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        },
+        {
+          "id": "9",
+          "title": "Wizard",
+          "description": "Cast your spell.",
+          "effects": [
+            {
+              "name": "Wizard Magic",
+              "description": "Spells and enchantments visualized.",
+              "effect_id": "9"
+            },
+            {
+              "name": "Multiverse Effect",
+              "description": "Multiverse swirling energy.",
+              "effect_id": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

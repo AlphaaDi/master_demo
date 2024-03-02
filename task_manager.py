@@ -4,18 +4,19 @@ import json
 import os
 import requests
 
-from sql_handler import *
+from mongo_handler import TaskDatabase, TaskStatus
 from common import *
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Video Processing Service")
     parser.add_argument("--public_ip")
-    parser.add_argument("--database", default='files/task_database.db', help="Path to the database file")
     parser.add_argument("--adresses_path", default='urls_path.txt')
     parser.add_argument("--worker_port", default='5000')
     parser.add_argument("--task_manager_port", default='6000')
     parser.add_argument("--process_api_method", default='process_video', help="API method for processing video")
     parser.add_argument("--check_api_method", default='get_worker_status', help="API method for checking worker status")
+    parser.add_argument("--database_url", default='mongodb://localhost:27017/')
+    parser.add_argument("--database_name", default='task_db')
     return parser.parse_args()
 
 
@@ -49,29 +50,41 @@ def send_video_processing_request(task, server_url, response_url):
 if __name__ == "__main__":
     args = parse_arguments()
     result_endpoint = f'http://{args.public_ip}:{args.task_manager_port}/process_video_result'
+    
     try:
-        task_db = TaskDatabase(args.database)
+        # Initialize TaskDatabase with MongoDB connection details
+        task_db = TaskDatabase(args.database_url, args.database_name)
+
         while True:
             time.sleep(1)
+            # Retrieve the oldest task from the 'waiting' collection
             task = task_db.retrieve_oldest_wait_task()
             if not task:
-                print('no task')
+                print('No task')
                 continue
-            print('task')
-            ip_adresses = read_servers_from_file(args.adresses_path)
-            for ip_adress in ip_adresses:
-                url = f'http://{ip_adress}:{args.worker_port}'
-                print('url ', url)
+            print('Task found:', task['task_id'])
+            ip_addresses = read_servers_from_file(args.adresses_path)
+            
+            for ip_address in ip_addresses:
+                url = f'http://{ip_address}:{args.worker_port}'
+                print('Checking worker status at:', url)
                 response = requests.get(os.path.join(url, args.check_api_method))
                 status = json.loads(response.text)['status']
+                
                 if status == 'ready':
-                    print(f"Send task {task['task_id']} to {url} for {args.process_api_method}")
-                    task_db.update_task_status(task['task_id'], status='processing')
+                    print(f"Sending task {task['task_id']} to {url} for {args.process_api_method}")
+                    # Move task to 'in_progress' collection
+                    task_db.move_task_to_in_progress(task['task_id'], ip_address) 
                     response = send_video_processing_request(
                         task, os.path.join(url, args.process_api_method),
                         result_endpoint
                     )
+                    if response.status_code == 200:
+                        print(f"Task {task['task_id']} is being processed.")
+                    else:
+                        print(f"Failed to start task {task['task_id']}.")
+
     except KeyboardInterrupt:
         print("Shutting down...")
-    # except BaseException as e:
-    #     print(e)
+    except Exception as e:
+        print(f"An error occurred: {e}")

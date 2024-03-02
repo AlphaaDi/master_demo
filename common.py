@@ -3,6 +3,7 @@ import numpy as np
 import json
 from scipy import ndimage
 from pathlib import Path
+import requests  # Ensure requests is installed
 
 from scipy.ndimage import zoom
 from skimage.measure import label
@@ -358,13 +359,32 @@ def extract_line_endpoints(binary_mask):
 
 
 def read_servers_from_file(file_path):
-    urls = []
     try:
         with open(file_path, 'r') as file:
             ip_adresses = [line.strip() for line in file if line.strip()]
-    except FileNotFoundError:
+    except FileNotFoundError as e:
         print(f"File not found: {file_path}")
+        raise e
     except Exception as e:
         print(f"An error occurred: {e}")
-
+        raise e
     return ip_adresses
+
+
+def send_notification_to_popup(pop_up_link, task_id):
+    if pop_up_link:
+        try:
+            # Example payload - customize as needed
+            payload = {
+                "message": f"Your video processed successfully, let's watch!!!",
+                "task_id": task_id,
+            }
+            response = requests.post(pop_up_link, json=payload)
+            if response.status_code == 200:
+                return True, "Notification sent successfully"
+            else:
+                return False, f"Notification failed with status code {response.status_code}"
+        except Exception as e:
+            return False, f"Failed to send notification. Error: {str(e)}"
+    else:
+        return False, "Pop-up link not found for the given user ID"
