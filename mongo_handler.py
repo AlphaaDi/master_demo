@@ -20,16 +20,15 @@ class TaskStatus(Enum):
 
 
 class TaskDatabase:
-    def __init__(self, db_url, db_name):
+    def __init__(self, db_host, db_port, db_name):
         """
         Initialize the MongoDB connection and specify the collections.
-        :param db_url: MongoDB connection URL.
         :param db_name: Database name.
         :param waiting_collection: Collection name for waiting tasks.
         :param in_progress_collection: Collection name for tasks in progress.
         :param done_collection: Collection name for done tasks.
         """
-        self.client = MongoClient(db_url)
+        self.client = MongoClient(host=db_host, port=db_port,connect=False)
         self.db = self.client[db_name]
         self.collections = {
             TaskStatus.WAITING: self.db[TaskStatus.WAITING.value],
@@ -45,13 +44,15 @@ class TaskDatabase:
     def get_collection(self, status: TaskStatus):
         return self.collections[status]
     
-    def store_link_with_uuid(self, uuid4, link):
+    def store_link_with_uuid(self, uuid4):
         document = {
             "uuid": uuid4,
-            "link": link,
             "created_at": datetime.now().isoformat(),
         }
         self.user_db.insert_one(document)
+
+    def store_push_token(self, uuid4, push_token):
+        pass
     
     def uuid_exists(self, uuid):
         return self.user_db.find_one({"uuid": uuid}) is not None

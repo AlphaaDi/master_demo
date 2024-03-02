@@ -16,10 +16,12 @@ from common import send_notification_to_popup
 app = Flask(__name__)
 
 # Parse arguments
+
 parser = argparse.ArgumentParser(description="Run Flask and Gradio in parallel.")
-parser.add_argument('--database_url', default='mongodb://localhost:27017/', help='MongoDB URL.')
-parser.add_argument('--database_name', default='mydatabase', help='MongoDB database name.')
-parser.add_argument('--flask_port', type=int, default=6000, help='Port for the Flask server.')
+parser.add_argument('--database_host', default='localhost', help='MongoDB host.')
+parser.add_argument('--database_port', default=27017, help='MongoDB port.')
+parser.add_argument('--database_name', default='app', help='MongoDB database name.')
+parser.add_argument('--flask_port', type=int, default=8100, help='Port for the Flask server.')
 parser.add_argument('--flask_host', default='0.0.0.0', help='Host for the Flask server.')
 parser.add_argument('--blob_storage_path', type=str, default='files/blob_storage', help='Path to the blob storage directory.')
 parser.add_argument('--template_config_path', type=str, default='files/styles_config.csv', help='Path to the template config')
@@ -30,15 +32,17 @@ args = parser.parse_args()
 blob_storage = Path(args.blob_storage_path)
 blob_storage.mkdir(exist_ok=True)
 
-# Initialize the TaskDatabase instance
-task_db = TaskDatabase(args.database_url, args.database_name)
+task_db = TaskDatabase(
+    db_host=args.database_host,
+    db_port=args.database_port,
+    db_name=args.database_name
+)
 
 limiter = Limiter(
-    app,
+    app=app,
     key_func=get_remote_address,  # or any function that returns a unique identifier for each user
     default_limits=["200 per day", "50 per hour"]  # Example rate limits
 )
-
 
 def require_valid_uuid(task_db):
     def decorator(view_function):
@@ -57,19 +61,34 @@ def require_valid_uuid(task_db):
 def register_for_token():
     # Generate a unique UUID4
     uuid4 = str(uuid.uuid4())
+    # data = request.get_json(force=True)
+    # token = data.get('token', None)
+    # if token
 
-    # Extract link for pop-ups from the request
-    # Assuming the link is sent in a JSON body with a key named "link"
-    data = request.get_json(force=True)
-    link = data.get('link')
-    if not link:
-        return jsonify({'error': 'Missing link in the request'}), 400
-
-    # Store the link and UUID in MongoDB
-    task_db.store_link_with_uuid(uuid4, link)
+    task_db.store_link_with_uuid(uuid4)
 
     # Return the UUID to the user
     return jsonify({'uuid': uuid4}), 200
+
+
+@app.route('/store_apns', methods=['POST'])
+def store_apns():
+    pass
+#     # Generate a unique UUID4
+#     uuid4 = str(uuid.uuid4())
+
+#     # Extract link for pop-ups from the request
+#     # Assuming the link is sent in a JSON body with a key named "link"
+#     data = request.get_json(force=True)
+#     link = data.get('link')
+#     if not link:
+#         return jsonify({'error': 'Missing link in the request'}), 400
+
+#     # Store the link and UUID in MongoDB
+#     task_db.store_link_with_uuid(uuid4, link)
+
+#     # Return the UUID to the user
+#     return jsonify({'uuid': uuid4}), 200
 
 
 @app.route('/get_templates', methods=['GET'])
