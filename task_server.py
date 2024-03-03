@@ -48,8 +48,9 @@ def require_valid_uuid(task_db):
     def decorator(view_function):
         @wraps(view_function)
         def decorated_function(*args, **kwargs):
-            uuid_key = request.headers.get('x-uuid-key')
-            if uuid_key and task_db.uuid_exists(uuid_key):
+            data = request.get_json(force=True)
+            token = data.get('token', None)
+            if token and task_db.uuid_exists(token):
                 return view_function(*args, **kwargs)
             else:
                 return jsonify({"error": "Invalid or missing UUID key"}), 401
@@ -59,36 +60,30 @@ def require_valid_uuid(task_db):
 
 @app.route('/register_for_token', methods=['POST'])
 def register_for_token():
-    # Generate a unique UUID4
-    uuid4 = str(uuid.uuid4())
-    # data = request.get_json(force=True)
-    # token = data.get('token', None)
-    # if token
+    data = request.get_json(force=True)
+    token = data.get('token', None)
+    if not task_db.check_uuid_exists(token):
+        token = str(uuid.uuid4())
+        task_db.store_link_with_uuid(token)
 
-    task_db.store_link_with_uuid(uuid4)
-
-    # Return the UUID to the user
-    return jsonify({'uuid': uuid4}), 200
+    return jsonify({'token': token}), 200
 
 
 @app.route('/store_apns', methods=['POST'])
+@require_valid_uuid(task_db)
 def store_apns():
-    pass
-#     # Generate a unique UUID4
-#     uuid4 = str(uuid.uuid4())
-
-#     # Extract link for pop-ups from the request
-#     # Assuming the link is sent in a JSON body with a key named "link"
-#     data = request.get_json(force=True)
-#     link = data.get('link')
-#     if not link:
-#         return jsonify({'error': 'Missing link in the request'}), 400
-
-#     # Store the link and UUID in MongoDB
-#     task_db.store_link_with_uuid(uuid4, link)
-
-#     # Return the UUID to the user
-#     return jsonify({'uuid': uuid4}), 200
+    data = request.get_json(force=True)
+    try:
+        token = data['token']
+        apns_token = data['apns_token']  
+    except BaseException as e:
+        return jsonify({'error': str(e)}), 400
+    
+    is_ok = task_db.update_collection_with_prop(token, apns_token, 'apns_token')
+    if is_ok:
+        return jsonify({'token': token}), 200
+    else:
+        return jsonify({'error': 'something wrong, zero object was modified'}), 400
 
 
 @app.route('/get_templates', methods=['GET'])
@@ -122,7 +117,7 @@ def get_templates():
 
 
 @app.route('/get_task_result/<task_id>')
-@require_valid_uuid(task_db)  # Make sure this decorator is correctly implemented to check UUID
+@require_valid_uuid(task_db)
 @limiter.limit("100 per minute")
 def get_task_result(task_id):
     """
@@ -157,11 +152,12 @@ def upload_task():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    uuid_key = request.headers.get('x-uuid-key')
+    data = request.get_json(force=True)
     
-    objects = request.form.get('objects')
-    config_text_box = request.form.get('config_text_box')
-    task_type = request.form.get('task_type')
+    token = data.get('token')
+    objects = data.get('objects')
+    config_text_box = data.get('config_text_box')
+    task_type = data.get('task_type')
     
     task_id = str(uuid.uuid4())
     task_folder = blob_storage / task_id
@@ -182,14 +178,14 @@ def upload_task():
         original_video_path=storage_video_path,
         config_path=storage_json_path,
         task_type=task_type,
-        user_id=uuid_key,
+        user_id=token,
     )
 
     result = {
         'message': f'Task {task_id} uploaded and saved successfully',
         'task_id': task_id,
     }
-    return jsonify(), 200
+    return jsonify(result), 200
 
 
 @app.route('/process_video_result', methods=['POST'])
@@ -209,11 +205,11 @@ def process_video_result():
 
     user_id = task_db.get_user_id_by_task_id(task_id)
 
-    popup_link = task_db.get_popup_link_by_user_id(user_id)
+    apns_token = task_db.get_user_db_property(user_id, 'apns_token')
 
-    send_notification_to_popup(popup_link, task_id)
+    send_notification_to_popup(apns_token, f'process video result for task {task_id}')
 
-    return jsonify({'message': 'Video processed and task updated successfully'})
+    return jsonify({'message': 'Video processed and task updated successfully'}), 200
 
 
 if __name__ == '__main__':

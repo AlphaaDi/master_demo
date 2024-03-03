@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 import json
 from enum import Enum
+from datetime import datetime, timedelta
 
 
 def parse_task(task_org):
@@ -53,19 +54,26 @@ class TaskDatabase:
 
     def store_push_token(self, uuid4, push_token):
         pass
-    
+
+
     def uuid_exists(self, uuid):
         return self.user_db.find_one({"uuid": uuid}) is not None
-    
-    def get_popup_link_by_user_id(self, user_id):
+
+
+    def get_user_db_property(self, user_id, property_name):
         document = self.user_db.find_one({"uuid": user_id})
-        return document['link'] if document else None
+        return document[property_name] if document else None
+
 
     def insert_task(
-            self, objects, user_id,
+            self, 
+            objects,
+            user_id,
             original_video_path,
-            config_path, task_id=None,
-            file_path='', task_type='video'
+            config_path,
+            task_id=None,
+            file_path='',
+            task_type='video'
         ):
         """
         Insert a new task into the waiting collection.
@@ -138,6 +146,35 @@ class TaskDatabase:
             return task_document.get("file_path")  # Assuming 'file_path' is the key for the file path
         else:
             return None
+
+
+    def delete_old_tasks(self, days):
+        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_timestamp = cutoff_date.isoformat()
+        result = self.done.delete_many({"done_timestamp": {"$lt": cutoff_timestamp}})
+        print(f"Deleted {result.deleted_count} tasks.")
+
+
+    def check_uuid_exists(self, uuid):
+        """
+        Check if a UUID exists in the collection.
+
+        :param uuid: The UUID to check for in the collection.
+        :return: True if the UUID is found, False otherwise.
+        """
+        document = self.user_db.find_one({"uuid": uuid})
+        return bool(document)
+
+
+    def update_collection_with_prop(self, uuid, propetry_value, propetry_name):
+        result = self.user_db.update_one(
+            {"uuid": uuid},
+            {"$set": {propetry_name: propetry_value}}
+        )
+        if result.modified_count > 0:
+            return True
+        else:
+            return False
 
 
     def retrieve_oldest_wait_task(self):

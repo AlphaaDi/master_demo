@@ -4,7 +4,7 @@ import json
 import os
 import requests
 
-from mongo_handler import TaskDatabase, TaskStatus
+from mongo_handler import TaskDatabase
 from common import *
 
 def parse_arguments():

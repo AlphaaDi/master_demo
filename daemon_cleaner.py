@@ -12,8 +12,12 @@ parser.add_argument('--db_name', default='mydatabase', help='MongoDB database na
 parser.add_argument('--days', type=int, default=7, help='Number of days after which videos should be deleted.')
 args = parser.parse_args()
 
-def delete_old_videos(db_url, db_name, days):
-    task_db = TaskDatabase(db_url, db_name)
+def delete_old_videos(database_host, database_port, database_name, days):
+    task_db = TaskDatabase(
+        db_host=database_host,
+        db_port=database_port,
+        db_name=database_name
+    )
     cutoff_date = datetime.now() - timedelta(days=days)
     cutoff_timestamp = cutoff_date.isoformat()
     old_tasks = task_db.done.find({"done_timestamp": {"$lt": cutoff_timestamp}})
@@ -27,21 +31,14 @@ def delete_old_videos(db_url, db_name, days):
                 print(f"Error deleting {file_path}: {e}")
         task_db.done.delete_one({"_id": task["_id"]})
 
-def delete_old_uuid(db_url, db_name, days):
-    pass
-    # task_db = TaskDatabase(db_url, db_name)
-    # cutoff_date = datetime.now() - timedelta(days=days)
-    # cutoff_timestamp = cutoff_date.isoformat()
-    # old_tasks = task_db.done.find({"done_timestamp": {"$lt": cutoff_timestamp}})
-    # for task in old_tasks:
-    #     file_path = task.get('file_path')
-    #     if file_path and os.path.exists(file_path):
-    #         try:
-    #             os.remove(file_path)
-    #             print(f"Deleted {file_path}")
-    #         except Exception as e:
-    #             print(f"Error deleting {file_path}: {e}")
-    #     task_db.done.delete_one({"_id": task["_id"]})
+def delete_old_uuid(database_host, database_port, database_name, days):
+    task_db = TaskDatabase(
+        db_host=database_host,
+        db_port=database_port,
+        db_name=database_name
+    )
+    task_db.delete_old_tasks(days)
+
 
 if __name__ == "__main__":
     delete_old_videos(args.db_url, args.db_name, args.days)

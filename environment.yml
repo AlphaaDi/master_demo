@@ -7,12 +7,13 @@ dependencies:
   - numpy=1.26.0
   - pandas=2.1.2
   - flask
-  - gradio=3.38.0
   - requests=2.31.0
   - scipy=1.11.1
   - scikit-image=0.22.0
-  - opencv-python=4.8.1.78
   - pymongo
   - pip
   - pip:
-      - opencv-python==4.8.1.78  # Since opencv-python might need to be installed via pip
+      - opencv-python==4.8.1.78
+      - gradio==3.38.0
+      - flask_limiter
+      - apns2

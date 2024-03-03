@@ -12,7 +12,6 @@ import json
 import argparse
 
 from common import *
-from sql_handler import *
 
 initial_state = {
     'current_selection': [0, 0, 0, 0],

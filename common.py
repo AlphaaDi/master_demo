@@ -8,6 +8,10 @@ import requests  # Ensure requests is installed
 from scipy.ndimage import zoom
 from skimage.measure import label
 
+from apns2.client import APNsClient
+from apns2.payload import Payload
+import collections
+
 dcn = lambda x: x.detach().cpu().numpy()
 
 
@@ -371,20 +375,13 @@ def read_servers_from_file(file_path):
     return ip_adresses
 
 
-def send_notification_to_popup(pop_up_link, task_id):
-    if pop_up_link:
-        try:
-            # Example payload - customize as needed
-            payload = {
-                "message": f"Your video processed successfully, let's watch!!!",
-                "task_id": task_id,
-            }
-            response = requests.post(pop_up_link, json=payload)
-            if response.status_code == 200:
-                return True, "Notification sent successfully"
-            else:
-                return False, f"Notification failed with status code {response.status_code}"
-        except Exception as e:
-            return False, f"Failed to send notification. Error: {str(e)}"
-    else:
-        return False, "Pop-up link not found for the given user ID"
+def send_notification_to_popup(token_hex, message):
+    payload = Payload(alert=message, sound="default", badge=1)
+    topic = 'com.example.App'
+    client = APNsClient('key.pem', use_sandbox=False, use_alternative_port=False)
+    client.send_notification(token_hex, payload, topic)
+
+    # To send multiple notifications in a batch
+    Notification = collections.namedtuple('Notification', ['token', 'payload'])
+    notifications = [Notification(payload=payload, token=token_hex)]
+    client.send_notification_batch(notifications=notifications, topic=topic)
