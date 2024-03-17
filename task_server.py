@@ -48,19 +48,16 @@ def require_valid_uuid(task_db):
     def decorator(view_function):
         @wraps(view_function)
         def decorated_function(*args, **kwargs):
-            data = request.get_json(silent=True)
-            if data is not None:
-                token = data.get('token', None)
-            else:
-                data = request.form['data']
-                data = json.loads(data)
-                token = data.get('token', None)
+            # Attempt to retrieve the token from a custom header, e.g., 'X-UUID-Token'
+            token = request.headers.get('token', None)            
+            # Check if the token exists in the database
             if token and task_db.uuid_exists(token):
                 return view_function(*args, **kwargs)
             else:
                 return jsonify({"error": "Invalid or missing UUID key"}), 401
         return decorated_function
     return decorator
+
 
 
 @app.route('/register_for_token', methods=['POST'])
@@ -80,10 +77,9 @@ def register_for_token():
 @app.route('/store_apns', methods=['POST'])
 @require_valid_uuid(task_db)
 def store_apns():
-    data = request.get_json(force=True)
     try:
-        token = data['token']
-        apns_token = data['apns_token']  
+        token = request.headers.get('token', None)
+        apns_token = request.form['apns_token']
     except BaseException as e:
         return jsonify({'error': str(e)}), 400
     
@@ -179,9 +175,7 @@ def upload_task():
 @require_valid_uuid(task_db)
 @limiter.limit("10 per minute")
 def process_video_result():
-    data = request.form['data']
-    data = json.loads(data)
-    task_id = data['task_id']
+    task_id = request.form['task_id']
     video_file = request.files['video']
 
     task_dir = Path(args.blob_storage_path) / task_id
